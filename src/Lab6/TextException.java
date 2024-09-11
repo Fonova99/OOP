@@ -4,11 +4,11 @@ import javax.swing.*;
 
 public class TextException extends  Exception{
     public TextException() {
-        super("Вы не ввели ФИО или должность доктора");
+        super("Вы не ввели название заболевания");
     }
-    public void checkException(JTextField doctor) throws TextException, NullPointerException{
-        String str = doctor.getText();
-        if (str.contains("ФИО или должность доктора")) throw new TextException();
+    public void checkException(JTextField disease) throws TextException, NullPointerException{
+        String str = disease.getText();
+        if (str.contains("Введите название заболевания")) throw new TextException();
         if (str.length() == 0) throw new NullPointerException();
     }
 }

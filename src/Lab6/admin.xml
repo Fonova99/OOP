@@ -1,1 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><Administration><visit disease="ОРВИ" doctor="Дорогов А.В./Терапевт" quantity="5" work="Кабинет №234, пн-пт 09:00 - 14:00"/><visit disease="Гангрена" doctor="Курляндцев Д.М./Хирург" quantity="3" work="Кабинет №125, вт,ср 11:00 - 14:00"/></Administration>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><Administration>
+    <visit cabinet="234" disease="ОРВИ" doctor="Дорогов А.В." quantity="5" speciality="Терапевт" workSchedule="пн-пт 09:00 - 14:00"/>
+    <visit cabinet="125" disease="Гангрена" doctor="Курляндцев Д.М." quantity="3" speciality="Хирург" workSchedule="вт,ср 11:00 - 14:00"/>
+    <visit cabinet="234" disease="ОРВИ" doctor="Дорогов А.В." quantity="5" speciality="Терапевт" workSchedule="пн-пт 09:00 - 14:00"/>
+    <visit cabinet="125" disease="Гангрена" doctor="Курляндцев Д.М." quantity="3" speciality="Хирург" workSchedule="вт,ср 11:00 - 14:00"/>
+</Administration>

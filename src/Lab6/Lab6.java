@@ -16,15 +16,19 @@ public class Lab6 {
     private JButton searchButton;
     private JButton saveButton;
     private JButton openButton;
+    private JButton saveXmlButton;
+    private JButton openXmlButton;
     private JToolBar toolBar;
     private DefaultTableModel model;
     private JTable registry;
     private JScrollPane scroll;
-    private JTextField doctor;
-    private JComboBox cabinet, disease;
+    private JTextField disease;
+    private JComboBox doctor, speciality;
     private JPanel filterPanel;
-    private TextException exception = new TextException();
+    private final TextException exception = new TextException();
     private boolean noException = true;
+    private final XmlFile xml = new XmlFile();
+    private final DocFile docFile = new DocFile();
 
     public void show() {
         createWindow();
@@ -50,6 +54,8 @@ public class Lab6 {
         searchButton = new JButton("Поиск");
         saveButton = new JButton("Сохранить");
         openButton = new JButton("Загрузить");
+        saveXmlButton = new JButton("Сохранить Xml-файл");
+        openXmlButton = new JButton("Загрузить Xml-файл");
 
         addButton.addActionListener(new ActionListener() {
             @Override
@@ -73,7 +79,7 @@ public class Lab6 {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    exception.checkException(doctor);
+                    exception.checkException(disease);
                 } catch (NullPointerException ex) {
                     JOptionPane.showMessageDialog(pcAdmin, ex.toString());
                     noException = false;
@@ -89,57 +95,27 @@ public class Lab6 {
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                FileDialog save = new FileDialog(pcAdmin, "Сохранение данных", FileDialog.SAVE);
-                save.setFile("*.txt");
-                save.setVisible(true); // Отобразить запрос пользователю
-                String fileName = save.getDirectory() + save.getFile(); // Определить имя выбранного каталога и файла
-
-                try {
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-                    for (int i = 0; i < model.getRowCount(); i++) // Для всех строк
-                        for (int j = 0; j < model.getColumnCount(); j++) // Для всех столбцов
-                        {
-                            writer.write((String) model.getValueAt(i, j)); // Записать значение из ячейки
-                            writer.write("\n"); // Записать символ перевода каретки
-                        }
-                    writer.close();
-                } catch (IOException ex) // Ошибка записи в файл
-                {
-                    ex.printStackTrace();
-                }
+                docFile.saveDocFile(pcAdmin, model);
             }
         });
 
         openButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                FileDialog open = new FileDialog(pcAdmin, "Сохранение данных", FileDialog.LOAD);
-                open.setFile("*.txt");
-                open.setVisible(true); // Отобразить запрос пользователю
-                String fileName = open.getDirectory() + open.getFile(); // Определить имя выбранного каталога и файла
+                docFile.openDocFile(pcAdmin, model);
+            }
+        });
+        saveXmlButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                xml.recordXmlFile(model);
 
-                try {
-                    BufferedReader reader = new BufferedReader(new FileReader(fileName));
-                    int rows = model.getRowCount();
-                    for (int i = 0; i < rows; i++) {
-                        model.removeRow(0); // Очистка таблицы
-                    }
-                    String doctor;
-                    do {
-                        doctor = reader.readLine();
-                        if (doctor != null) {
-                            String workSchedule = reader.readLine();
-                            String diseases = reader.readLine();
-                            String quantity = reader.readLine();
-                            model.addRow(new String[]{doctor, workSchedule, diseases, quantity}); // Запись строки в таблицу
-                        }
-                    } while (doctor != null);
-                    reader.close();
-                } catch (FileNotFoundException ex) { // файл не найден
-                    ex.printStackTrace();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+            }
+        });
+        openXmlButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                xml.readXmlFile(model);
             }
         });
 
@@ -149,6 +125,8 @@ public class Lab6 {
         searchButton.setToolTipText("Поиск информации");
         saveButton.setToolTipText("Сохранить данные");
         openButton.setToolTipText("Загрузить данные");
+        saveXmlButton.setToolTipText("Сохранить Xml-файл");
+        openXmlButton.setToolTipText("Загрузить Xml-файл");
     }
 
     private void createToolbar() {
@@ -158,13 +136,15 @@ public class Lab6 {
         toolBar.add(removeButton);
         toolBar.add(saveButton);
         toolBar.add(openButton);
+        toolBar.add(saveXmlButton);
+        toolBar.add(openXmlButton);
     }
 
     private void createTable() {
-        String[] columns = {"Врач/Специализация", "График работы(№ кабинета, дни и часы приема)", "Справка о болезни", "Кол-во заболеваний"};
+        String[] columns = {"Врач", "Специализация", "Номер кабинета", "График работы", "Справка о болезни", "Кол-во заболеваний"};
         String[][] data = {
-                {"Дорогов А.В./Терапевт", "Кабинет №234, пн-пт 09:00 - 14:00", "ОРВИ", "5"},
-                {"Курляндцев Д.М./Хирург", "Кабинет №125, вт,ср 11:00 - 14:00", "Гангрена", "3"}
+                {"Дорогов А.В.", "Терапевт", "234", "пн-пт 09:00 - 14:00", "ОРВИ", "5"},
+                {"Курляндцев Д.М.", "Хирург", "125", "вт,ср 11:00 - 14:00", "Гангрена", "3"}
         };
         model = new DefaultTableModel(data, columns);
         registry = new JTable(model);
@@ -173,12 +153,12 @@ public class Lab6 {
     }
 
     private void createSearchComponents() {
-        doctor = new JTextField("ФИО или должность доктора");
-        cabinet = new JComboBox(new String[]{"Кабинет", "234", "125"});
-        disease = new JComboBox(new String[]{"Заболевание", "ОРВИ", "Гангрена"});
+        doctor = new JComboBox(new String[]{"Врач", "Дорогов А.В.", "Курляндцев Д.М."});
+        speciality = new JComboBox(new String[]{"Специальность", "Терапевт", "Хирург"});
+        disease = new JTextField("Введите название заболевания");
         filterPanel = new JPanel();
         filterPanel.add(doctor);
-        filterPanel.add(cabinet);
+        filterPanel.add(speciality);
         filterPanel.add(disease);
         filterPanel.add(searchButton);
     }
@@ -190,7 +170,7 @@ public class Lab6 {
         pcAdmin.add(filterPanel, BorderLayout.SOUTH);
     }
 
-    private void setColumnWidths(JTable table, String[] columnNames) {
+    private static void setColumnWidths(JTable table, String[] columnNames) {
         FontMetrics fontMetrics = table.getFontMetrics(table.getFont());
 
         for (int i = 0; i < columnNames.length; i++) {
@@ -199,13 +179,7 @@ public class Lab6 {
             column.setPreferredWidth(width);
         }
     }
-
-    public DefaultTableModel getModel() {
-        return model;
-    }
 }
-
-
 
 
 
