@@ -17,8 +17,8 @@ public class Lab3 {
     private DefaultTableModel model;
     private JTable registry;
     private JScrollPane scroll;
-    private JTextField doctor;
-    private JComboBox cabinet, disease;
+    private JTextField disease;
+    private JComboBox doctor, speciality;
     private JPanel filterPanel;
 
     public void show() {
@@ -83,10 +83,10 @@ public class Lab3 {
     }
 
     private void createTable() {
-        String[] columns = {"Врач/Специализация", "График работы(№ кабинета, дни и часы приема)", "Справка о болезни", "Кол-во заболеваний"};
+        String[] columns = {"Врач", "Специализация", "Номер кабинета", "График работы", "Справка о болезни", "Кол-во заболеваний"};
         String[][] data = {
-                {"Дорогов А.В./Терапевт", "Кабинет №234, пн-пт 09:00 - 14:00", "ОРВИ", "5"},
-                {"Курляндцев Д.М./Хирург", "Кабинет №125, вт,ср 11:00 - 14:00", "Гангрена", "3"}
+                {"Дорогов А.В.", "Терапевт", "234", "пн-пт 09:00 - 14:00", "ОРВИ", "5"},
+                {"Курляндцев Д.М.", "Хирург", "125", "вт,ср 11:00 - 14:00", "Гангрена", "3"}
         };
         model = new DefaultTableModel(data, columns);
         registry = new JTable(model);
@@ -95,12 +95,12 @@ public class Lab3 {
     }
 
     private void createSearchComponents() {
-        doctor = new JTextField("ФИО или должность доктора");
-        cabinet = new JComboBox(new String[]{"Кабинет", "234", "125"});
-        disease = new JComboBox(new String[]{"Заболевание", "ОРВИ", "Гангрена"});
+        doctor = new JComboBox(new String[]{"Врач", "Дорогов А.В.", "Курляндцев Д.М."});
+        speciality = new JComboBox(new String[]{"Специальность", "Терапевт", "Хирург"});
+        disease = new JTextField("Введите название заболевания");
         filterPanel = new JPanel();
         filterPanel.add(doctor);
-        filterPanel.add(cabinet);
+        filterPanel.add(speciality);
         filterPanel.add(disease);
         filterPanel.add(searchButton);
     }
