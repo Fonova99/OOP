@@ -20,11 +20,13 @@ public class Lab5 {
     private DefaultTableModel model;
     private JTable registry;
     private JScrollPane scroll;
-    private JTextField doctor;
-    private JComboBox cabinet, disease;
+    private JTextField disease;
+    private JComboBox doctor, speciality;
     private JPanel filterPanel;
     TextException exception = new TextException();
     private boolean noException = true;
+
+    DocFile docFile = new DocFile();
 
     public void show() {
         createWindow();
@@ -73,7 +75,7 @@ public class Lab5 {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    exception.checkException(doctor);
+                    exception.checkException(disease);
                 } catch (NullPointerException ex) {
                     JOptionPane.showMessageDialog(pcAdmin, ex.toString());
                     noException = false;
@@ -89,55 +91,14 @@ public class Lab5 {
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                FileDialog save = new FileDialog(pcAdmin, "Сохранение данных", FileDialog.SAVE);
-                save.setFile("*.txt");
-                save.setVisible(true); // Отобразить запрос пользователю
-                String fileName = save.getDirectory() + save.getFile(); // Определить имя выбранного каталога и файла
-
-                try {
-                    BufferedWriter writer = new BufferedWriter (new FileWriter(fileName));
-                    for (int i = 0; i < model.getRowCount(); i++) // Для всех строк
-                        for (int j = 0; j < model.getColumnCount(); j++) // Для всех столбцов
-                        {writer.write ((String) model.getValueAt(i, j)); // Записать значение из ячейки
-                            writer.write("\n"); // Записать символ перевода каретки
-                        }
-                    writer.close();
-                }
-                catch(IOException ex) // Ошибка записи в файл
-                { ex.printStackTrace(); }
+                docFile.saveDocFile(pcAdmin, model);
             }
         });
 
         openButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                FileDialog open = new FileDialog(pcAdmin, "Сохранение данных", FileDialog.LOAD);
-                open.setFile("*.txt");
-                open.setVisible(true); // Отобразить запрос пользователю
-                String fileName = open.getDirectory() + open.getFile(); // Определить имя выбранного каталога и файла
-
-                try {
-                    BufferedReader reader = new BufferedReader(new FileReader(fileName));
-                    int rows = model.getRowCount();
-                    for (int i = 0; i < rows; i++) {
-                        model.removeRow(0); // Очистка таблицы
-                    }
-                    String doctor;
-                    do {
-                        doctor = reader.readLine();
-                        if(doctor != null) {
-                            String workSchedule = reader.readLine();
-                            String diseases = reader.readLine();
-                            String quantity = reader.readLine();
-                            model.addRow(new String[]{doctor, workSchedule, diseases, quantity}); // Запись строки в таблицу
-                        }
-                    } while(doctor != null);
-                    reader.close();
-                } catch (FileNotFoundException ex) { // файл не найден
-                    ex.printStackTrace();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                docFile.openDocFile(pcAdmin, model);
             }
         });
 
@@ -159,10 +120,10 @@ public class Lab5 {
     }
 
     private void createTable() {
-        String[] columns = {"Врач/Специализация", "График работы(№ кабинета, дни и часы приема)", "Справка о болезни", "Кол-во заболеваний"};
+        String[] columns = {"Врач", "Специализация", "Номер кабинета", "График работы", "Справка о болезни", "Кол-во заболеваний"};
         String[][] data = {
-                {"Дорогов А.В./Терапевт", "Кабинет №234, пн-пт 09:00 - 14:00", "ОРВИ", "5"},
-                {"Курляндцев Д.М./Хирург", "Кабинет №125, вт,ср 11:00 - 14:00", "Гангрена", "3"}
+                {"Дорогов А.В.", "Терапевт", "234", "пн-пт 09:00 - 14:00", "ОРВИ", "5"},
+                {"Курляндцев Д.М.", "Хирург", "125", "вт,ср 11:00 - 14:00", "Гангрена", "3"}
         };
         model = new DefaultTableModel(data, columns);
         registry = new JTable(model);
@@ -171,12 +132,12 @@ public class Lab5 {
     }
 
     private void createSearchComponents() {
-        doctor = new JTextField("ФИО или должность доктора");
-        cabinet = new JComboBox(new String[]{"Кабинет", "234", "125"});
-        disease = new JComboBox(new String[]{"Заболевание", "ОРВИ", "Гангрена"});
+        doctor = new JComboBox(new String[]{"Врач", "Дорогов А.В.", "Курляндцев Д.М."});
+        speciality = new JComboBox(new String[]{"Специальность", "Терапевт", "Хирург"});
+        disease = new JTextField("Введите название заболевания");
         filterPanel = new JPanel();
         filterPanel.add(doctor);
-        filterPanel.add(cabinet);
+        filterPanel.add(speciality);
         filterPanel.add(disease);
         filterPanel.add(searchButton);
     }
@@ -198,7 +159,6 @@ public class Lab5 {
         }
     }
 }
-
 
 
 
